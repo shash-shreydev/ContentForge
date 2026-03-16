@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard | ContentForge</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body class="page">
+    <div class="glow-bg"></div>
+    <header class="topbar">
+      <div class="logo">ContentForge</div>
+      <div class="nav-actions">
+        <span class="user-pill">{{ user.email }}</span>
+        <a class="btn ghost" href="/logout">Logout</a>
+      </div>
+    </header>
+
+    <main class="dashboard">
+      <section class="input-panel">
+        <div>
+          <h1>Your content engine</h1>
+          <p class="subhead">
+            Paste a text idea or a YouTube link. We will forge it into five
+            ready-to-post formats.
+          </p>
+        </div>
+        <div class="usage-pill">
+          Remaining this month:
+          <span id="remainingCount">{{ remaining }}</span> / {{ usage_limit }}
+        </div>
+        <textarea
+          id="contentInput"
+          placeholder="Paste your content or YouTube link here..."
+          rows="8"
+        ></textarea>
+        <div class="action-row">
+          <button id="generateBtn" class="btn primary">
+            Generate Content
+          </button>
+          <span id="statusText" class="status-text"></span>
+        </div>
+        <div id="errorBox" class="error-box hidden"></div>
+      </section>
+
+      <section class="results-grid">
+        <div class="result-card">
+          <div class="card-header">
+            <h3>Twitter/X Thread</h3>
+            <button class="btn ghost copy-btn" data-target="output-twitter">
+              Copy
+            </button>
+          </div>
+          <pre id="output-twitter" class="output">Paste content and click Generate.</pre>
+        </div>
+        <div class="result-card">
+          <div class="card-header">
+            <h3>LinkedIn Post</h3>
+            <button class="btn ghost copy-btn" data-target="output-linkedin">
+              Copy
+            </button>
+          </div>
+          <pre id="output-linkedin" class="output">Awaiting input.</pre>
+        </div>
+        <div class="result-card">
+          <div class="card-header">
+            <h3>Instagram Caption</h3>
+            <button class="btn ghost copy-btn" data-target="output-instagram">
+              Copy
+            </button>
+          </div>
+          <pre id="output-instagram" class="output">Awaiting input.</pre>
+        </div>
+        <div class="result-card">
+          <div class="card-header">
+            <h3>Short-Form Video Script</h3>
+            <button class="btn ghost copy-btn" data-target="output-video">
+              Copy
+            </button>
+          </div>
+          <pre id="output-video" class="output">Awaiting input.</pre>
+        </div>
+        <div class="result-card">
+          <div class="card-header">
+            <h3>Newsletter Summary</h3>
+            <button
+              class="btn ghost copy-btn"
+              data-target="output-newsletter"
+            >
+              Copy
+            </button>
+          </div>
+          <pre id="output-newsletter" class="output">Awaiting input.</pre>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const outputMap = {
+        twitter_thread: "output-twitter",
+        linkedin_post: "output-linkedin",
+        instagram_caption: "output-instagram",
+        short_video_script: "output-video",
+        newsletter_summary: "output-newsletter",
+      };
+
+      const generateBtn = document.getElementById("generateBtn");
+      const contentInput = document.getElementById("contentInput");
+      const errorBox = document.getElementById("errorBox");
+      const statusText = document.getElementById("statusText");
+      const remainingCount = document.getElementById("remainingCount");
+
+      function setError(message) {
+        if (!message) {
+          errorBox.classList.add("hidden");
+          errorBox.textContent = "";
+          return;
+        }
+        errorBox.textContent = message;
+        errorBox.classList.remove("hidden");
+      }
+
+      function setStatus(message) {
+        statusText.textContent = message || "";
+      }
+
+      generateBtn.addEventListener("click", async () => {
+        const content = contentInput.value.trim();
+        if (!content) {
+          setError("Please paste some content or a YouTube link.");
+          return;
+        }
+        setError("");
+        setStatus("Generating...");
+        generateBtn.disabled = true;
+        try {
+          const response = await fetch("/generate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ content }),
+          });
+          const data = await response.json();
+          if (!response.ok) {
+            setError(data.detail || "Something went wrong.");
+            return;
+          }
+          Object.entries(data.outputs || {}).forEach(([key, value]) => {
+            const targetId = outputMap[key];
+            if (targetId) {
+              document.getElementById(targetId).textContent = value;
+            }
+          });
+          remainingCount.textContent = data.remaining;
+          setStatus("Done.");
+        } catch (error) {
+          setError("Unable to generate right now. Please try again.");
+        } finally {
+          generateBtn.disabled = false;
+          setTimeout(() => setStatus(""), 2000);
+        }
+      });
+
+      document.querySelectorAll(".copy-btn").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const target = document.getElementById(btn.dataset.target);
+          if (!target) return;
+          try {
+            await navigator.clipboard.writeText(target.textContent.trim());
+            btn.textContent = "Copied";
+            setTimeout(() => {
+              btn.textContent = "Copy";
+            }, 1200);
+          } catch (error) {
+            setError("Copy failed. Please copy manually.");
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

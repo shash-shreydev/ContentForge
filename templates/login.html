@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login | ContentForge</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body class="page">
+    <div class="glow-bg"></div>
+    <header class="topbar">
+      <div class="logo">ContentForge</div>
+      <div class="nav-actions">
+        <a class="btn ghost" href="/">Home</a>
+        <a class="btn ghost" href="/signup">Sign Up</a>
+      </div>
+    </header>
+
+    <main class="auth-shell">
+      <section class="auth-card">
+        <h1>Welcome back</h1>
+        <p class="subhead">Log in to keep forging content.</p>
+        {% if error %}
+        <div class="error-box">{{ error }}</div>
+        {% endif %}
+        <form method="post" action="/login" class="form-stack">
+          <label>
+            Email
+            <input type="email" name="email" required />
+          </label>
+          <label>
+            Password
+            <input type="password" name="password" required minlength="6" />
+          </label>
+          <button class="btn primary" type="submit">Log in</button>
+        </form>
+        <p class="helper-text">
+          Need an account?
+          <a href="/signup">Create one</a>
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ContentForge</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body class="page">
+    <div class="glow-bg"></div>
+    <header class="topbar">
+      <div class="logo">ContentForge</div>
+      <div class="nav-actions">
+        {% if user %}
+        <a class="btn ghost" href="/dashboard">Dashboard</a>
+        <a class="btn primary" href="/logout">Logout</a>
+        {% else %}
+        <a class="btn ghost" href="/login">Login</a>
+        <a class="btn primary" href="/signup">Sign Up</a>
+        {% endif %}
+      </div>
+    </header>
+
+    <main class="hero">
+      <section class="hero-card">
+        <p class="eyebrow">AI social content in minutes</p>
+        <h1>Turn any idea into five platform-ready posts.</h1>
+        <p class="subhead">
+          Paste text or a YouTube link and ContentForge will craft a Twitter
+          thread, LinkedIn post, Instagram caption, short-form script, and a
+          newsletter summary.
+        </p>
+        <div class="cta-row">
+          {% if user %}
+          <a class="btn primary" href="/dashboard">Go to dashboard</a>
+          {% else %}
+          <a class="btn primary" href="/signup">Get started free</a>
+          <a class="btn ghost" href="/login">I already have an account</a>
+          {% endif %}
+        </div>
+      </section>
+
+      <section class="feature-grid">
+        <div class="feature-card">
+          <h3>One input</h3>
+          <p>Drop in a paragraph, a blog draft, or a YouTube link.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Five outputs</h3>
+          <p>Generate tailored formats for every major social platform.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Copy-ready</h3>
+          <p>Grab the content instantly with a single click.</p>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
