@@ -18,11 +18,16 @@ from database import (
 )
 from models import GenerateRequest
 
-USAGE_LIMIT = 3
+DEV_EMAIL = os.getenv("DEV_EMAIL")
+USAGE_LIMIT = 100
 
 app = FastAPI(title="ContentForge")
 
-secret_key = os.getenv("SECRET_KEY", "dev-secret-key-change-me")
+secret_key = os.getenv("SESSION_SECRET")
+
+if not secret_key:
+    raise RuntimeError("SESSION_SECRET environment variable not set")
+
 app.add_middleware(SessionMiddleware, secret_key=secret_key)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -122,11 +127,13 @@ async def generate(request: Request):
         raise HTTPException(status_code=400, detail="Invalid request payload.")
 
     remaining = get_remaining_generations(user["id"], USAGE_LIMIT)
-    if remaining <= 0:
+
+    # dev bypass
+    if DEV_EMAIL and user["email"] != DEV_EMAIL and remaining <= 0:
         raise HTTPException(
-            status_code=429,
-            detail="Monthly generation limit reached. Try again next month.",
-        )
+         status_code=429,
+         detail="Monthly generation limit reached. Try again next month.",
+    )
 
     try:
         outputs = generate_all(data.content.strip())
