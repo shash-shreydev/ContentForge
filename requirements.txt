@@ -1,7 +1,9 @@
 fastapi
-uvicorn[standard]
+uvicorn
+sqlalchemy
+passlib[bcrypt]
+bcrypt==4.0.1
 jinja2
 python-multipart
-passlib[bcrypt]
 openai
-itsdangerous
+email-validator
